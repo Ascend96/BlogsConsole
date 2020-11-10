@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
+
 namespace BlogsConsole
 {
     public class BloggingContext : DbContext
@@ -11,6 +12,10 @@ namespace BlogsConsole
         public void AddBlog(Blog blog)
         {
             this.Blogs.Add(blog);
+            this.SaveChanges();
+        }
+        public void AddPost(Blog blog, Post post){
+            blog.Posts.Add(post);
             this.SaveChanges();
         }
 

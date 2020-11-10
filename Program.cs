@@ -67,7 +67,46 @@ namespace BlogsConsole
                 logger.Info("Blog added - {name}\nBlog id - {id} ", name, blog.BlogId);
                 }
                 
-            } 
+            } else if(choice == "3"){
+                
+                Console.WriteLine("Select the blog you would like to post to:");
+                // orders blogs by blog id
+                var query = db.Blogs.OrderBy(b => b.BlogId);
+                // displays blogs in order
+                foreach (var item in query)
+                {
+                    Console.WriteLine(item.BlogId.ToString() + ") " + item.Name);
+                    }
+                    
+                var option = Int32.Parse(Console.ReadLine());
+                // if string was entered log error
+                if(option.Equals(typeof(string))){
+                    logger.Error("Not a valid integer for blog");
+                } 
+                // if option does not equal a correct blog id, 
+                // log error
+                else if(option != db.Blogs.Find(option).BlogId){
+                    logger.Error("Blog not found with that Blog Id");
+                }
+
+                // else ask for title and content of post
+                // create and save post to blog selected
+                else{
+                
+                Console.WriteLine($"Please enter title");
+                var title = Console.ReadLine();
+                
+                Console.WriteLine("Please enter content of post");
+                
+                var content = Console.ReadLine(); 
+                var post = new Post{ Title = title, Content = content};
+                
+                db.AddPost(db.Blogs.Find(option), post);
+
+                // logs post number and amount of posts for blog selected    
+                logger.Info($"Post #{db.Blogs.Find(option).Posts.Count()} added to Blog: {db.Blogs.Find(option).Name}");
+                }
+            }
                 
             } while(choice == "1" || choice == "2" || choice == "3" || choice == "4");
             }
