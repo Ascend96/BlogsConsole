@@ -2,6 +2,7 @@
 using NLog.Web;
 using System.IO;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace BlogsConsole
 {
@@ -13,6 +14,7 @@ namespace BlogsConsole
         {
             logger.Info("Program Started");
             string choice;
+            int i = 0;
             var db = new BloggingContext();
             try
             {
@@ -23,6 +25,7 @@ namespace BlogsConsole
                     Console.WriteLine("3). Create Post");
                     Console.WriteLine("4). Display Posts");
                     Console.WriteLine("Enter q to quit");
+                    
 
                     choice = Console.ReadLine();
 
@@ -30,8 +33,14 @@ namespace BlogsConsole
             if(choice =="1"){
 
                 logger.Info("User selected option 1");
+                
+                
                 // Display all Blogs from the database
                 var query = db.Blogs.OrderBy(b => b.Name);
+
+                // Displays number of Blogs in database
+                Console.WriteLine($"There are {query.Count()} Blogs in the database\n");
+                
 
                 Console.WriteLine("All blogs in the database:");
                 foreach (var item in query)
@@ -41,16 +50,24 @@ namespace BlogsConsole
             }    
             else if(choice == "2"){
                 logger.Info("User selected option 2");
-                // Create and save a new Blog
-                Console.Write("Enter a name for a new Blog: ");
-                var name = Console.ReadLine();
-
+                    // asks for name of blog
+                    Console.Write("Enter a name for a new Blog: ");
+                
+                    var name = Console.ReadLine();
+                    // checks if blog name in empty and logs error
+                    if(name.Length == 0){
+                        logger.Error("Blog name cannot be null");
+                    } 
+                else{
+                // creates and saves blog
                 var blog = new Blog { Name = name };
-
                 
                 db.AddBlog(blog);
-                logger.Info("Blog added - {name}", name);
+                i++;
+                logger.Info("Blog added - {name}\nBlog id - {id} ", name, blog.BlogId);
                 }
+                
+            } 
                 
             } while(choice == "1" || choice == "2" || choice == "3" || choice == "4");
             }
