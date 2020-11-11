@@ -14,7 +14,7 @@ namespace BlogsConsole
         {
             logger.Info("Program Started");
             string choice;
-            int i = 0;
+            
             var db = new BloggingContext();
             try
             {
@@ -63,7 +63,7 @@ namespace BlogsConsole
                 var blog = new Blog { Name = name };
                 
                 db.AddBlog(blog);
-                i++;
+                
                 logger.Info("Blog added - {name}\nBlog id - {id} ", name, blog.BlogId);
                 }
                 
@@ -95,16 +95,55 @@ namespace BlogsConsole
                 
                 Console.WriteLine($"Please enter title");
                 var title = Console.ReadLine();
+                if(title.Length == 0){
+                    logger.Error("Post title cannot be null");
+                }
+                else{
+                    Console.WriteLine("Please enter content of post");
+                    var content = Console.ReadLine();
+                    var post = new Post{ Title = title, Content = content};
+                    db.AddPost(db.Blogs.Find(option), post);
+                    // logs post content added    
+                    logger.Info($"Post added - {content}");
+                }
+                }
+            }
+            else if (choice == "4"){
+                Console.WriteLine("Select the blog you would like to view the posts of");
+                var query = db.Blogs.OrderBy(b => b.BlogId);
+                Console.WriteLine("0) Display all posts");
+                // displays all blogs by blog id
+                foreach (var item in query)
+                {
+                    Console.WriteLine(item.BlogId.ToString() + ") " + item.Name);
+                    }
+                    // takes user input as option 
+                    // uses that in find operator to locate correct blog
+                var option = Int32.Parse(Console.ReadLine());
+                if(option == 0){
+                    // orders posts by blog id
+                    var order = db.Posts.OrderBy(b => b.BlogId);
+                    foreach(Post p in order){
+                        // sets the name of the blog for the post
+                        // with find operator taking the name from the post with 
+                        // the equal blog id
+                        p.Blog.Name = db.Blogs.Find(p.BlogId).Name;
                 
-                Console.WriteLine("Please enter content of post");
+                          Console.WriteLine(p.Display());
+                        }
+                        // returns number of posts
+                        logger.Info($"{db.Posts.Count()} posts returned");
+                    }
+                    
                 
-                var content = Console.ReadLine(); 
-                var post = new Post{ Title = title, Content = content};
-                
-                db.AddPost(db.Blogs.Find(option), post);
-
-                // logs post number and amount of posts for blog selected    
-                logger.Info($"Post #{db.Blogs.Find(option).Posts.Count()} added to Blog: {db.Blogs.Find(option).Name}");
+                else{
+                    // returns posts where the option is equal to the blog id
+               foreach(Post p in db.Posts.Where(p => option.Equals(p.BlogId))){
+                   p.Blog.Name = db.Blogs.Find(option).Name;
+                       Console.WriteLine(p.Display());
+                    }
+                    logger.Info($"{db.Blogs.Find(option).Posts.Count()} posts returned");
+                    
                 }
             }
                 
