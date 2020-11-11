@@ -15,7 +15,7 @@ namespace BlogsConsole
         }
 
         public string Display(){
-            return $"Blog Id: {BlogId}\nBlog: {Blog.Name}\nTitle: {Title}\nContent:{Content}\n";
+            return $"Blog: {Blog.Name}\nTitle: {Title}\nContent:{Content}\n";
         }
     
     }
