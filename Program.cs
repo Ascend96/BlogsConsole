@@ -217,16 +217,29 @@ namespace BlogsConsole
             var isValid = Validator.TryValidateObject(blog, context, results, true);
             if (isValid)
             {
-                return blog;
+                // check for unique name
+                if (db.Blogs.Any(b => b.Name == blog.Name))
+                {
+                    // generate validation error
+                    isValid = false;
+                    results.Add(new ValidationResult("Blog name exists", new string[] { "Name" }));
+                }
+                else
+                {
+                    logger.Info("Validation passed");
+                }
             }
             else
+            if (!isValid)
             {
                 foreach (var result in results)
                 {
                     logger.Error($"{result.MemberNames.First()} : {result.ErrorMessage}");
                 }
+                return null;
             }
-            return null;
+            return blog;
+            
         }
     }
 }
