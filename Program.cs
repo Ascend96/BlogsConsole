@@ -56,38 +56,12 @@ namespace BlogsConsole
             else if(choice == "2"){
                 logger.Info("User selected option 2");
                     // asks for name of blog
-                    Console.Write("Enter a name for a new Blog: ");
-                
-                    var name = Console.ReadLine();
-                    var blog = new Blog { Name = name };
-                    ValidationContext context = new ValidationContext(blog, null, null);
-                        List<ValidationResult> results = new List<ValidationResult>();
-
-                        var isValid = Validator.TryValidateObject(blog, context, results, true);
-                        if (isValid)
+                        var db = new BloggingContext();
+                        Blog blog = InputBlog(db);
+                        if (blog != null)
                         {
-                            var db = new BloggingContext();
-                            // check for unique name
-                            if (db.Blogs.Any(b => b.Name == blog.Name))
-                            {
-                                // generate validation error
-                                isValid = false;
-                                results.Add(new ValidationResult("Blog name exists", new string[] { "Name" }));
-                            }
-                            else
-                            {
-                                logger.Info("Validation passed");
-                                // save blog to db
-                                db.AddBlog(blog);
-                                logger.Info("Blog added - {name}", blog.Name);
-                            }
-                        }
-                        if (!isValid)
-                        {
-                            foreach (var result in results)
-                            {
-                                logger.Error($"{result.MemberNames.First()} : {result.ErrorMessage}");
-                            }
+                            db.AddBlog(blog);
+                            logger.Info("Blog added - {name}", blog.Name);
                         }
                 
             } else if(choice == "3"){
@@ -222,6 +196,29 @@ namespace BlogsConsole
                 }
             }
             logger.Error("Invalid Blog Id");
+            return null;
+        }
+        public static Blog InputBlog(BloggingContext db)
+        {
+            Blog blog = new Blog();
+            Console.WriteLine("Enter the Blog name");
+            blog.Name = Console.ReadLine();
+
+            ValidationContext context = new ValidationContext(blog, null, null);
+            List<ValidationResult> results = new List<ValidationResult>();
+
+            var isValid = Validator.TryValidateObject(blog, context, results, true);
+            if (isValid)
+            {
+                return blog;
+            }
+            else
+            {
+                foreach (var result in results)
+                {
+                    logger.Error($"{result.MemberNames.First()} : {result.ErrorMessage}");
+                }
+            }
             return null;
         }
     }
